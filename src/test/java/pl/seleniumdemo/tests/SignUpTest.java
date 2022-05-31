@@ -1,14 +1,13 @@
 package pl.seleniumdemo.tests;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-import pl.seleniumdemo.tests.BaseTest;
+import pl.seleniumdemo.pages.HotelSearchPage;
+import pl.seleniumdemo.pages.LoggedUserPage;
+import pl.seleniumdemo.pages.SignUpPage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SignUpTest extends BaseTest {
 
@@ -19,38 +18,33 @@ public class SignUpTest extends BaseTest {
         int randomNumber = (int) (Math.random() * 1000);
         String email = "tester" + randomNumber + "@tester.pl";
 
-        driver.findElements(By.xpath("//li[@id='li_myaccount']")).stream()
-                .filter(WebElement::isDisplayed)
-                .findFirst().ifPresent(WebElement::click);
-        driver.findElements(By.xpath("//a[text()='  Sign Up']")).get(1).click();
+        HotelSearchPage hotelSearchPage = new HotelSearchPage(driver);
+        hotelSearchPage.openSingUpForm();
 
-        driver.findElement(By.name("firstname")).sendKeys("Bartek");
-        driver.findElement(By.name("lastname")).sendKeys(lastName);
-        driver.findElement(By.name("phone")).sendKeys("789456123");
-        driver.findElement(By.name("email")).sendKeys(email);
-        driver.findElement(By.name("password")).sendKeys("Test123");
-        driver.findElement(By.name("confirmpassword")).sendKeys("Test123");
-        driver.findElement(By.xpath("//button[@type='submit' and text()=' Sign Up']")).click();
+        SignUpPage signUpPage = new SignUpPage(driver);
+        signUpPage.setFirstName("Bartek");
+        signUpPage.setLastName(lastName);
+        signUpPage.setPhone("111111111");
+        signUpPage.setEmail(email);
+        signUpPage.setPassword("Test123");
+        signUpPage.confirmPassword("Test123");
+        signUpPage.signUp();
 
-        WebElement heading = driver.findElement(By.xpath("//h3[@class='RTL']"));
-        Assert.assertTrue(heading.getText().contains(lastName));
-        Assert.assertEquals(heading.getText(), "Hi, Bartek Testowy");
-
+        LoggedUserPage loggedUserPage = new LoggedUserPage(driver);
+        Assert.assertTrue(loggedUserPage.getHeadingText().contains(lastName));
+        Assert.assertEquals(loggedUserPage.getHeadingText(), "Hi, Bartek Testowy");
 
     }
 
+
     @Test
     public void signUpEmptyFormTest() {
-        driver.findElements(By.xpath("//li[@id='li_myaccount']")).stream()
-                .filter(WebElement::isDisplayed)
-                .findFirst().ifPresent(WebElement::click);
-        driver.findElements(By.xpath("//a[text()='  Sign Up']")).get(1).click();
-        driver.findElement(By.xpath("//button[@type='submit' and text()=' Sign Up']")).click();
+        HotelSearchPage hotelSearchPage = new HotelSearchPage(driver);
+        hotelSearchPage.openSingUpForm();
+        SignUpPage signUpPage = new SignUpPage(driver);
+        signUpPage.signUp();
 
-        List<String> errors = driver.findElements(By.xpath("//div[@class='alert alert-danger']//p"))
-                .stream()
-                .map(WebElement::getText)
-                .collect(Collectors.toList());
+        List<String> errors = signUpPage.getErrors();
 
         SoftAssert softAssert = new SoftAssert();
         softAssert.assertTrue(errors.contains("The Email field is required."));
@@ -64,29 +58,20 @@ public class SignUpTest extends BaseTest {
 
     @Test
     public void signUpInvalidEmail() {
-        String lastName = "Testowy";
-        int randomNumber = (int) (Math.random() * 1000);
-        String email = "tester" + randomNumber;
+        HotelSearchPage hotelSearchPage = new HotelSearchPage(driver);
+        hotelSearchPage.openSingUpForm();
 
-        driver.findElements(By.xpath("//li[@id='li_myaccount']")).stream()
-                .filter(WebElement::isDisplayed)
-                .findFirst().ifPresent(WebElement::click);
-        driver.findElements(By.xpath("//a[text()='  Sign Up']")).get(1).click();
+        SignUpPage signUpPage = new SignUpPage(driver);
+        signUpPage.setFirstName("Bartek");
+        signUpPage.setLastName("Testowy");
+        signUpPage.setPhone("111111111");
+        signUpPage.setEmail("email");
+        signUpPage.setPassword("Test123");
+        signUpPage.confirmPassword("Test123");
+        signUpPage.signUp();
 
-        driver.findElement(By.name("firstname")).sendKeys("Bartek");
-        driver.findElement(By.name("lastname")).sendKeys(lastName);
-        driver.findElement(By.name("phone")).sendKeys("789456123");
-        driver.findElement(By.name("email")).sendKeys(email);
-        driver.findElement(By.name("password")).sendKeys("Test123");
-        driver.findElement(By.name("confirmpassword")).sendKeys("Test123");
-        driver.findElement(By.xpath("//button[@type='submit' and text()=' Sign Up']")).click();
 
-        List<String> errors = driver.findElements(By.xpath("//div[@class='alert alert-danger']//p"))
-                .stream()
-                .map(WebElement::getText)
-                .collect(Collectors.toList());
-
-        Assert.assertTrue(errors.contains("The Email field must contain a valid email address."));
+        Assert.assertTrue(signUpPage.getErrors().contains("The Email field must contain a valid email address."));
 
 
     }
