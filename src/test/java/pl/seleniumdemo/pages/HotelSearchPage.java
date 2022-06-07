@@ -1,5 +1,7 @@
 package pl.seleniumdemo.pages;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -43,6 +45,8 @@ public class HotelSearchPage {
 
     private WebDriver driver;
 
+    private static final Logger logger = LogManager.getLogger();
+
     public HotelSearchPage(WebDriver driver) {
         PageFactory.initElements(driver, this);
         this.driver = driver;
@@ -50,22 +54,31 @@ public class HotelSearchPage {
 
 
     public void setCity(String cityName) {
+        logger.info("Setting city " + cityName);
         searchHotelSpan.click();
         searchHotelInput.sendKeys(cityName);
         String xpath = String.format("//span[@class='select2-match' and text() = '%s']", cityName);
         driver.findElement(By.xpath(xpath)).click();
+        logger.info("Setting city done");
+
 
     }
 
     public void setDates(String checkin, String checkout) {
+        logger.info("Setting dates " + "checkin " + checkin + " checkout " + checkout);
         checkinInput.sendKeys(checkin);
         checkoutInput.sendKeys(checkout);
+        logger.info("Setting dates done");
+
     }
 
     public void setTravellers(int adultsToAdd, int childToAdd) {
+        logger.info("Adding adults " + adultsToAdd + " and kids " + childToAdd);
         travellersInput.click();
         addTraveler(adultPlusBtn, adultsToAdd);
         addTraveler(childPlusBtn, childToAdd);
+        logger.info("Adding travellers done");
+
 
     }
 
@@ -76,7 +89,9 @@ public class HotelSearchPage {
     }
 
     public void performSearch() {
+        logger.info("Performing search");
         searchButton.click();
+        logger.info("Performing search done");
     }
 
     public void openSingUpForm() {
