@@ -1,11 +1,13 @@
 package pl.seleniumdemo.tests;
 
+import org.openqa.selenium.By;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import pl.seleniumdemo.pages.HotelSearchPage;
 import pl.seleniumdemo.pages.LoggedUserPage;
 import pl.seleniumdemo.pages.SignUpPage;
+import pl.seleniumdemo.utils.SeleniumHelper;
 
 import java.util.List;
 
@@ -44,6 +46,7 @@ public class SignUpTest extends BaseTest {
         SignUpPage signUpPage = new SignUpPage(driver);
         signUpPage.signUp();
 
+
         List<String> errors = signUpPage.getErrors();
 
         SoftAssert softAssert = new SoftAssert();
@@ -70,7 +73,7 @@ public class SignUpTest extends BaseTest {
         signUpPage.confirmPassword("Test123");
         signUpPage.signUp();
 
-
+        SeleniumHelper.waitForNotEmptyList(driver, By.xpath("//div[@class='alert alert-danger']//p"));
         Assert.assertTrue(signUpPage.getErrors().contains("The Email field must contain a valid email address."));
 
 
